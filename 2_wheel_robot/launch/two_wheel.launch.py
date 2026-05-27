@@ -127,6 +127,17 @@ def generate_launch_description():
         output='screen',
     )
 
+    Imu_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=[
+            'imu_sensor_broadcaster',
+            '--controller-manager',
+            controller_manager_name,
+        ],
+        output='screen',
+    )
+
     joy_node = Node(
         package='joy',
         executable='joy_node',
@@ -144,6 +155,16 @@ def generate_launch_description():
         package='wheel_robot',
         executable='Wheel_robot',
         name='Wheel_robot',
+        output='screen',
+        parameters=[
+            {'use_sim_time': use_sim_time}
+        ]
+    )
+
+    mapping_node = Node(
+        package='mapping_test',
+        executable='lidar_mapping_node',
+        name='lidar_mapping_node',
         output='screen',
         parameters=[
             {'use_sim_time': use_sim_time}
@@ -191,9 +212,11 @@ def generate_launch_description():
 
         joint_state_broadcaster_spawner,
         wheel_controller_spawner,
+        Imu_spawner,
 
         joy_node,
         controller_node,
+        mapping_node,
 
         rviz_node,
     ])

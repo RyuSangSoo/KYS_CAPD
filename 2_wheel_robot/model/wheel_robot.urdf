@@ -53,7 +53,7 @@
     <child link="left_wheel"/>
     <origin xyz="-0.12 0.2 -0.05" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="10.0" velocity="20.0"/>
+    <limit effort="20.0" velocity="20.0"/>
   </joint>
 
 
@@ -95,7 +95,7 @@
     <child link="right_wheel"/>
     <origin xyz="-0.12 -0.2 -0.05" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit effort="10.0" velocity="20.0"/>
+    <limit effort="20.0" velocity="20.0"/>
   </joint>
 
 
@@ -204,6 +204,44 @@
 
 
   <!-- ===================== -->
+  <!-- IMU Joint -->
+  <!-- ===================== -->
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <!-- base_link 위쪽에 장착 -->
+    <origin xyz="-0.08 0 0.055" rpy="0 0 0"/>
+  </joint>
+
+
+  <!-- ===================== -->
+  <!-- IMU Link -->
+  <!-- ===================== -->
+  <link name="imu_link">
+    <visual>
+      <geometry>
+        <box size="0.04 0.03 0.01"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="0.04 0.03 0.01"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="0.05"/>
+      <inertia
+        ixx="0.00001" ixy="0" ixz="0"
+        iyy="0.00001" iyz="0"
+        izz="0.00001"/>
+    </inertial>
+  </link>
+
+
+  <!-- ===================== -->
   <!-- ros2_control -->
   <!-- 좌/우 바퀴만 effort 제어 -->
   <!-- ===================== -->
@@ -233,6 +271,20 @@
       <state_interface name="velocity"/>
       <state_interface name="effort"/>
     </joint>
+
+    <sensor name="imu_sensor">
+      <state_interface name="orientation.x"/>
+      <state_interface name="orientation.y"/>
+      <state_interface name="orientation.z"/>
+      <state_interface name="orientation.w"/>
+      <state_interface name="angular_velocity.x"/>
+      <state_interface name="angular_velocity.y"/>
+      <state_interface name="angular_velocity.z"/>
+      <state_interface name="linear_acceleration.x"/>
+      <state_interface name="linear_acceleration.y"/>
+      <state_interface name="linear_acceleration.z"/>
+    </sensor>
+    
   </ros2_control>
 
 
@@ -252,7 +304,7 @@
   <gazebo reference="lidar_link">
     <sensor name="lidar_2d" type="ray">
       <always_on>true</always_on>
-      <visualize>true</visualize>
+      <visualize>false</visualize>
       <update_rate>10</update_rate>
 
       <ray>
@@ -285,6 +337,27 @@
 
         <output_type>sensor_msgs/LaserScan</output_type>
         <frame_name>lidar_link</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+
+  <!-- ===================== -->
+  <!-- Gazebo IMU Sensor -->
+  <!-- ===================== -->
+  <gazebo reference="imu_link">
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>100</update_rate>
+
+      <plugin name="imu_sensor_plugin" filename="libgazebo_ros_imu_sensor.so">
+        <ros>
+          <remapping>~/out:=imu</remapping>
+        </ros>
+
+        <frame_name>imu_link</frame_name>
+        <initial_orientation_as_reference>false</initial_orientation_as_reference>
       </plugin>
     </sensor>
   </gazebo>

@@ -128,12 +128,28 @@ private:
                 msg->header.stamp,
                 rclcpp::Duration::from_seconds(0.1));
         } catch (const std::exception & e) {
-            RCLCPP_WARN_THROTTLE(
-                get_logger(),
-                *get_clock(),
-                1000,
-                "TF lookup failed: %s", e.what());
-            return;
+            try {
+                // scan 시각의 TF가 아직 도착하지 않은 경우가 있어서
+                // 최신 TF로 한 번 더 fallback한다.
+                tf_msg = tf_buffer_->lookupTransform(
+                    "odom",
+                    msg->header.frame_id.empty() ? "lidar_link" : msg->header.frame_id,
+                    rclcpp::Time(0, 0, get_clock()->get_clock_type()),
+                    rclcpp::Duration::from_seconds(0.1));
+
+                RCLCPP_WARN_THROTTLE(
+                    get_logger(),
+                    *get_clock(),
+                    1000,
+                    "TF timestamp lookup failed, using latest TF instead: %s", e.what());
+            } catch (const std::exception & e_latest) {
+                RCLCPP_WARN_THROTTLE(
+                    get_logger(),
+                    *get_clock(),
+                    1000,
+                    "TF lookup failed even with latest transform fallback: %s", e_latest.what());
+                return;
+            }
         }
 
         const double robot_x = tf_msg.transform.translation.x;
