@@ -53,6 +53,8 @@ def generate_launch_description():
         )
     }
 
+    world_path = os.path.join(pkg_share, 'worlds', 'astar_mapping_test.world')
+    
     gazebo_server = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             PathJoinSubstitution([
@@ -63,6 +65,7 @@ def generate_launch_description():
         ]),
         launch_arguments={
             'pause': pause,
+            'world': world_path,
             'use_sim_time': use_sim_time,
         }.items()
     )

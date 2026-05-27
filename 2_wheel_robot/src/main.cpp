@@ -96,6 +96,9 @@ int main(int argc, char **argv)
         // UI에서 그래프를 그릴 수 있도록 Ref/Est 상태를 토픽으로 내보낸다.
         robot_node->PublishStates();
 
+        // odom -> base_link TF를 퍼블리시한다.
+        robot_node->PublishOdomTF();
+
         loop_rate.sleep();
     }
 

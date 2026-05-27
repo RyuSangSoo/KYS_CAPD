@@ -7,7 +7,8 @@
 class ysRos : public rclcpp::Node
 {
 private:
-    
+    std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+
 public:
     ysRos(/* args */);
     ~ysRos();
@@ -30,6 +31,7 @@ public:
     void JointStateCallBack(const sensor_msgs::msg::JointState::SharedPtr JointMsg);
     void JoyCallBack(const sensor_msgs::msg::Joy::SharedPtr JoyMsg);
     void PublishStates();
+    void PublishOdomTF();
 
     // 조이스틱 입력 스케일
     double max_dx   = 0.4;  // [m/s]

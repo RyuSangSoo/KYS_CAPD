@@ -112,8 +112,8 @@ WheelEffortCommand ysController::ComputeWheelEffort(double dt)
     u_v = ClampValue(u_v, -max_v_, max_v_);
     u_w = ClampValue(u_w, -max_w_, max_w_);
 
-    // UI에서 확인할 수 있도록
-    // 바깥쪽 제어기 결과를 바퀴 각속도 형태로도 환산해서 Ref에 저장한다.
+    // 차동구동 inverse kinematics:
+    // 몸체 전진/회전 입력을 바퀴 각속도 기준으로 환산한다.
     const double wl_des = (u_v - 0.5 * wheel_base_ * u_w) / wheel_radius_;
     const double wr_des = (u_v + 0.5 * wheel_base_ * u_w) / wheel_radius_;
 
@@ -125,10 +125,10 @@ WheelEffortCommand ysController::ComputeWheelEffort(double dt)
     robot.Ref.Pos.Wheel.left += robot.Ref.Vel.Wheel.left * dt;
     robot.Ref.Pos.Wheel.right += robot.Ref.Vel.Wheel.right * dt;
 
-    // 차동구동에서 전진 입력과 회전 입력을 좌/우 바퀴 effort로 직접 분배한다.
-    // u_v는 두 바퀴에 공통으로 들어가고, u_w는 좌우에 반대 부호로 들어간다.
-    command.left = ClampValue(u_v - u_w, -max_effort_, max_effort_);
-    command.right = ClampValue(u_v + u_w, -max_effort_, max_effort_);
+    // 안쪽 바퀴 속도 루프를 두지 않는 현재 구조에서는
+    // 역기구학으로 얻은 바퀴 각속도 부호를 그대로 effort 부호에 반영한다.
+    command.left = ClampValue(wl_des, -max_effort_, max_effort_);
+    command.right = ClampValue(wr_des, -max_effort_, max_effort_);
 
     robot.Ref.Tau.Wheel.left = command.left;
     robot.Ref.Tau.Wheel.right = command.right;

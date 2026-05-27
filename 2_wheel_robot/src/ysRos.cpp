@@ -3,6 +3,7 @@
 Robot robot;
 
 ysRos::ysRos() : Node("WheelRobot") {
+    tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     wheel_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>("wheel_effort_controller/commands", 1);
     ref_base_state_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>("/state/ref/base_state", 1);
     est_base_state_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>("/state/est/base_state", 1);
@@ -38,7 +39,8 @@ void ysRos::JointStateCallBack(const sensor_msgs::msg::JointState::SharedPtr Joi
 }
 
 void ysRos::JoyCallBack(const sensor_msgs::msg::Joy::SharedPtr JoyMsg) {
-    // 조이스틱 축 입력을 바로 쓰지 않고 속도 명령 단위로 변환한다.
+    // 조이스틱 전진 입력은 로봇 +X 전진,
+    // 조이스틱 좌우 입력은 yaw 기준 회전에 직접 대응시킨다.
     JOYdx       = JoyMsg->axes[1] * max_dx;
     JOYdyaw     = JoyMsg->axes[3] * max_dyaw;
     JOYpitch    = JoyMsg->axes[4] * max_dx;
@@ -100,4 +102,25 @@ void ysRos::PublishStates() {
     est_base_state_pub->publish(est_base_msg);
     ref_wheel_state_pub->publish(ref_wheel_msg);
     est_wheel_state_pub->publish(est_wheel_msg);
+}
+
+void ysRos::PublishOdomTF() {
+    geometry_msgs::msg::TransformStamped tf_msg;
+    tf_msg.header.stamp = this->get_clock()->now();
+    tf_msg.header.frame_id = "odom";
+    tf_msg.child_frame_id = "base_link";
+
+    tf_msg.transform.translation.x = robot.Est.Pos.Base.x;
+    tf_msg.transform.translation.y = robot.Est.Pos.Base.y;
+    tf_msg.transform.translation.z = 0.0;
+
+    tf2::Quaternion q;
+    q.setRPY(0.0, 0.0, robot.Est.Pos.Base.yaw);
+
+    tf_msg.transform.rotation.x = q.x();
+    tf_msg.transform.rotation.y = q.y();
+    tf_msg.transform.rotation.z = q.z();
+    tf_msg.transform.rotation.w = q.w();
+
+    tf_broadcaster_->sendTransform(tf_msg);
 }

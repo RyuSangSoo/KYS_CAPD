@@ -10,6 +10,7 @@ void ysOdom::Update(double dt)
     const double wl = robot.Est.Vel.Wheel.left;
     const double wr = robot.Est.Vel.Wheel.right;
 
+    // 로봇 기준 전진(+X), 좌회전(+yaw) 규약으로 body 속도를 계산한다.
     robot.Est.Vel.Base.x = wheel_radius_ * 0.5 * (wr + wl);
     robot.Est.Vel.Base.y = 0.0;
     robot.Est.Vel.Base.yaw = wheel_radius_ * (wr - wl) / wheel_base_;

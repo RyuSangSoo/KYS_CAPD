@@ -266,7 +266,7 @@
         </scan>
 
         <range>
-          <min>0.50</min>
+          <min>0.30</min>
           <max>8.0</max>
           <resolution>0.01</resolution>
         </range>
