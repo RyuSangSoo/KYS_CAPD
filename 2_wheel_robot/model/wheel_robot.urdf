@@ -1,0 +1,311 @@
+<?xml version="1.0"?>
+<robot name="wheel_robot">
+
+  <!-- ===================== -->
+  <!-- Materials -->
+  <!-- ===================== -->
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <material name="gray">
+    <color rgba="0.5 0.5 0.5 1"/>
+  </material>
+
+
+  <!-- ===================== -->
+  <!-- Base Link -->
+  <!-- ===================== -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.5 0.3 0.1"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="0.5 0.3 0.1"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="5.0"/>
+      <inertia
+        ixx="0.04" ixy="0" ixz="0"
+        iyy="0.10" iyz="0"
+        izz="0.104"/>
+    </inertial>
+  </link>
+
+
+  <!-- ===================== -->
+  <!-- Left Wheel Joint -->
+  <!-- 바퀴를 뒤쪽(-X)으로 이동 -->
+  <!-- ===================== -->
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="-0.12 0.2 -0.05" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="10.0" velocity="20.0"/>
+  </joint>
+
+
+  <!-- ===================== -->
+  <!-- Left Wheel Link -->
+  <!-- ===================== -->
+  <link name="left_wheel">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1.0"/>
+      <inertia
+        ixx="0.0027" ixy="0" ixz="0"
+        iyy="0.0050" iyz="0"
+        izz="0.0027"/>
+    </inertial>
+  </link>
+
+
+  <!-- ===================== -->
+  <!-- Right Wheel Joint -->
+  <!-- 바퀴를 뒤쪽(-X)으로 이동 -->
+  <!-- ===================== -->
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="-0.12 -0.2 -0.05" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="10.0" velocity="20.0"/>
+  </joint>
+
+
+  <!-- ===================== -->
+  <!-- Right Wheel Link -->
+  <!-- ===================== -->
+  <link name="right_wheel">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1.0"/>
+      <inertia
+        ixx="0.0027" ixy="0" ixz="0"
+        iyy="0.0050" iyz="0"
+        izz="0.0027"/>
+    </inertial>
+  </link>
+
+
+  <!-- ===================== -->
+  <!-- Front Caster Joint -->
+  <!-- 앞쪽 캐스터 1개만 사용 -->
+  <!-- ===================== -->
+  <joint name="front_caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_caster"/>
+    <origin xyz="0.2 0 -0.1" rpy="0 0 0"/>
+  </joint>
+
+
+  <!-- ===================== -->
+  <!-- Front Caster Link -->
+  <!-- ===================== -->
+  <link name="front_caster">
+    <visual>
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="0.5"/>
+      <inertia
+        ixx="0.0005" ixy="0" ixz="0"
+        iyy="0.0005" iyz="0"
+        izz="0.0005"/>
+    </inertial>
+  </link>
+
+
+  <!-- ===================== -->
+  <!-- 2D LiDAR Joint -->
+  <!-- ===================== -->
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0.0 0 0.07" rpy="0 0 0"/>
+  </joint>
+
+
+  <!-- ===================== -->
+  <!-- 2D LiDAR Link -->
+  <!-- ===================== -->
+  <link name="lidar_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.04" length="0.04"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <cylinder radius="0.04" length="0.04"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="0.1"/>
+      <inertia
+        ixx="0.0001" ixy="0" ixz="0"
+        iyy="0.0001" iyz="0"
+        izz="0.0001"/>
+    </inertial>
+  </link>
+
+
+  <!-- ===================== -->
+  <!-- ros2_control -->
+  <!-- 좌/우 바퀴만 effort 제어 -->
+  <!-- ===================== -->
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+
+    <joint name="left_wheel_joint">
+      <command_interface name="effort">
+        <param name="min">-20.0</param>
+        <param name="max">20.0</param>
+      </command_interface>
+
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <joint name="right_wheel_joint">
+      <command_interface name="effort">
+        <param name="min">-20.0</param>
+        <param name="max">20.0</param>
+      </command_interface>
+
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+  </ros2_control>
+
+
+  <!-- ===================== -->
+  <!-- Gazebo ros2_control Plugin -->
+  <!-- ===================== -->
+  <gazebo>
+    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+      <parameters>__CONTROLLER_CONFIG_PATH__</parameters>
+    </plugin>
+  </gazebo>
+
+
+  <!-- ===================== -->
+  <!-- Gazebo 2D LiDAR Sensor -->
+  <!-- ===================== -->
+  <gazebo reference="lidar_link">
+    <sensor name="lidar_2d" type="ray">
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <update_rate>10</update_rate>
+
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+
+        <range>
+          <min>0.50</min>
+          <max>8.0</max>
+          <resolution>0.01</resolution>
+        </range>
+
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+
+      <plugin name="lidar_2d_controller" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <remapping>~/out:=scan</remapping>
+        </ros>
+
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frame_name>lidar_link</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+
+  <!-- ===================== -->
+  <!-- Gazebo friction settings -->
+  <!-- ===================== -->
+  <gazebo reference="left_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+  </gazebo>
+
+  <gazebo reference="right_wheel">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+  </gazebo>
+
+  <gazebo reference="front_caster">
+    <mu1>0.01</mu1>
+    <mu2>0.01</mu2>
+  </gazebo>
+
+</robot>
